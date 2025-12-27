@@ -1,6 +1,6 @@
 use std::{collections::HashMap, path::Path};
 
-use console::style;
+use console::{set_colors_enabled, style};
 
 use crate::{
     planner::{
@@ -15,6 +15,8 @@ pub struct PrettyPrinter;
 
 impl PrettyPrinter {
     pub fn print(plan: &Plan, options: &PrinterOptions) {
+        set_colors_enabled(options.use_color);
+
         Self::print_errors(plan);
         Self::print_summary(plan);
 

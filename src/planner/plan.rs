@@ -3,6 +3,7 @@ use std::time::SystemTime;
 
 use crate::planner::action::Action;
 
+#[doc = "Plan data"]
 #[derive(Debug)]
 pub struct Plan {
     pub metadata: PlanMetadata,
@@ -12,14 +13,23 @@ pub struct Plan {
     pub summary: PlanSummary,
 }
 
+#[doc = "Command metadata"]
 #[derive(Debug)]
 pub struct PlanMetadata {
-    pub command: String,
-    pub args: Vec<String>,
+    pub command: CommandKind,
     pub working_dir: PathBuf,
     pub created_at: SystemTime,
 }
 
+#[doc = "Command kind simplified for metadata"]
+#[derive(Debug)]
+pub enum CommandKind {
+    Touch,
+    Mv,
+    Rm,
+}
+
+#[doc = "Affected summary"]
 #[derive(Debug, Default)]
 pub struct PlanSummary {
     pub files_deleted: usize,
@@ -30,6 +40,7 @@ pub struct PlanSummary {
     pub errors: usize,
 }
 
+#[doc = "Command Warning"]
 #[derive(Debug)]
 pub struct PlanWarning {
     pub kind: WarningKind,
@@ -45,6 +56,7 @@ pub enum WarningKind {
     PermissionRisk,
 }
 
+#[doc = "Command Error"]
 #[derive(Debug)]
 pub struct PlanError {
     pub kind: ErrorKind,

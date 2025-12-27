@@ -1,9 +1,10 @@
 use crate::planner::{
-    action::Action,
-    plan::{Plan, PlanMetadata, PlanSummary, PlanWarning, WarningKind},
+    action::{Action, FsObjectKind},
+    plan::{CommandKind, Plan, PlanMetadata, PlanSummary, PlanWarning, WarningKind},
 };
 use std::{path::PathBuf, time::SystemTime};
 
+#[doc = "Planner for `touch`"]
 pub struct TouchPlanner {
     pub targets: Vec<PathBuf>,
     pub cwd: PathBuf,
@@ -34,7 +35,7 @@ impl super::traits::Planner for TouchPlanner {
 
             actions.push(Action::Create {
                 path: target.clone(),
-                kind: crate::planner::action::FsObjectKind::File,
+                kind: FsObjectKind::File,
             });
 
             summary.files_created += 1;
@@ -45,8 +46,7 @@ impl super::traits::Planner for TouchPlanner {
 
         Plan {
             metadata: PlanMetadata {
-                command: "touch".into(),
-                args: vec![],
+                command: CommandKind::Touch,
                 working_dir: self.cwd.clone(),
                 created_at: SystemTime::now(),
             },

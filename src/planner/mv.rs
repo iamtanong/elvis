@@ -2,9 +2,13 @@ use std::{path::PathBuf, time::SystemTime};
 
 use crate::planner::{
     action::Action,
-    plan::{ErrorKind, Plan, PlanError, PlanMetadata, PlanSummary, PlanWarning, WarningKind},
+    plan::{
+        CommandKind, ErrorKind, Plan, PlanError, PlanMetadata, PlanSummary, PlanWarning,
+        WarningKind,
+    },
 };
 
+#[doc = "Planner for `mv`"]
 pub struct MvPlanner {
     pub sources: Vec<PathBuf>,
     pub target: PathBuf,
@@ -97,8 +101,7 @@ impl super::traits::Planner for MvPlanner {
 
         Plan {
             metadata: PlanMetadata {
-                command: "mv".into(),
-                args: vec![],
+                command: CommandKind::Mv,
                 working_dir: self.cwd.clone(),
                 created_at: SystemTime::now(),
             },

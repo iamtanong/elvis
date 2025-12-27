@@ -1,24 +1,25 @@
 use std::path::PathBuf;
 
+#[doc = "Plan Action"]
 #[derive(Debug)]
 pub enum Action {
-    Delete {
+    Create {
         path: PathBuf,
         kind: FsObjectKind,
-        recursive: bool,
     },
     Move {
         from: PathBuf,
         to: PathBuf,
         overwrite: bool,
     },
-    Create {
-        path: PathBuf,
-        kind: FsObjectKind,
-    },
     Modify {
         path: PathBuf,
         description: String,
+    },
+    Delete {
+        path: PathBuf,
+        kind: FsObjectKind,
+        recursive: bool,
     },
 }
 

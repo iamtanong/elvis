@@ -32,7 +32,10 @@ pub fn run(cli: Cli) -> io::Result<()> {
     let printer_opts = PrinterOptions {
         summary_only: cli.summary_only,
         cwd: cwd.clone(),
-        ..Default::default()
+        use_color: !cli.no_color,
+        max_entries: cli
+            .max_entries
+            .unwrap_or(PrinterOptions::default().max_entries),
     };
 
     PrettyPrinter::print(&plan, &printer_opts);

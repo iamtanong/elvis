@@ -3,11 +3,13 @@ use std::{fs, time::SystemTime};
 
 use walkdir::WalkDir;
 
+use crate::planner::plan::CommandKind;
 use crate::planner::{
     action::{Action, FsObjectKind},
     plan::{ErrorKind, Plan, PlanError, PlanMetadata, PlanSummary, PlanWarning, WarningKind},
 };
 
+#[doc = "Planner for `rm`"]
 pub struct RmPlanner {
     pub targets: Vec<PathBuf>,
     pub recursive: bool,
@@ -108,8 +110,7 @@ impl super::traits::Planner for RmPlanner {
 
         Plan {
             metadata: PlanMetadata {
-                command: "rm".into(),
-                args: vec![],
+                command: CommandKind::Rm,
                 working_dir: self.cwd.clone(),
                 created_at: SystemTime::now(),
             },
