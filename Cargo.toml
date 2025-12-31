@@ -1,7 +1,17 @@
 [package]
 name = "elvis"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
+description = "A CLI tool that lets you preview file-system commands"
+authors = ["iamtanong"]
+repository = "https://github.com/iamtanong/elvis"
+license = "MIT"
+
+[package.metadata.wix]
+upgrade-guid = "DC90F888-D616-4FC2-900C-D553826D114A"
+path-guid = "834C968F-31A5-4DB2-9777-12769F93DBD1"
+license = false
+eula = false
 
 [dependencies]
 clap = {version = "4.5.53", features = ["derive"]}
