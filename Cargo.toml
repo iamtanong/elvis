@@ -1,7 +1,7 @@
 [package]
 name = "elvis"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 description = "A CLI tool that lets you preview file-system commands"
 authors = ["iamtanong"]
 repository = "https://github.com/iamtanong/elvis"
