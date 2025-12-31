@@ -19,3 +19,9 @@ install-path = "CARGO_HOME"
 publish-jobs = ["homebrew"]
 # Whether to install an updater program
 install-updater = false
+
+[profile.dist]
+inherits = "release"
+lto = true
+codegen-units = 1
+strip = "symbols"

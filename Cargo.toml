@@ -5,6 +5,7 @@ edition = "2024"
 description = "A CLI tool that lets you preview file-system commands"
 authors = ["iamtanong"]
 repository = "https://github.com/iamtanong/elvis"
+homepage = "https://github.com/iamtanong/elvis"
 license = "MIT"
 
 [package.metadata.wix]
