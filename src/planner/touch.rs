@@ -28,17 +28,20 @@ impl super::traits::Planner for TouchPlanner {
                 warnings.push(PlanWarning {
                     kind: WarningKind::Overwrite,
                     paths: vec![target.clone()],
-                    message: "Already existed".into(),
+                    message: "Already existed, will update modification time".into(),
                 });
-                continue;
+                actions.push(Action::Modify {
+                    path: target.clone(),
+                    description: "Update modification time".into(),
+                });
+                summary.files_modified += 1;
+            } else {
+                actions.push(Action::Create {
+                    path: target.clone(),
+                    kind: FsObjectKind::File,
+                });
+                summary.files_created += 1;
             }
-
-            actions.push(Action::Create {
-                path: target.clone(),
-                kind: FsObjectKind::File,
-            });
-
-            summary.files_created += 1;
         }
 
         summary.warnings = warnings.len();

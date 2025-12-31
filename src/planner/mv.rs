@@ -1,7 +1,8 @@
 use std::{path::PathBuf, time::SystemTime};
+use walkdir::WalkDir;
 
 use crate::planner::{
-    action::Action,
+    action::{Action, FsObjectKind},
     plan::{
         CommandKind, ErrorKind, Plan, PlanError, PlanMetadata, PlanSummary, PlanWarning,
         WarningKind,
@@ -63,37 +64,86 @@ impl super::traits::Planner for MvPlanner {
                 continue;
             }
 
-            let dest = if self.sources.len() > 1 || target_is_dir {
-                self.target.join(src.file_name().unwrap())
+            if src.is_dir() {
+                let dest_dir = if target_is_dir {
+                    self.target.join(src.file_name().unwrap())
+                } else {
+                    self.target.clone()
+                };
+
+                let mut dirs_to_delete = vec![];
+                for entry in WalkDir::new(src).into_iter().filter_map(|e| e.ok()) {
+                    let entry_path = entry.path();
+                    let relative_path = entry_path.strip_prefix(src).unwrap();
+                    let dest_path = dest_dir.join(relative_path);
+
+                    if entry.file_type().is_dir() {
+                        actions.push(Action::Create {
+                            path: dest_path.clone(),
+                            kind: FsObjectKind::Directory,
+                        });
+                        if !dest_path.exists() {
+                            summary.dirs_created += 1;
+                        }
+                        dirs_to_delete.push(entry_path.to_path_buf());
+                    } else {
+                        let overwrite = dest_path.exists();
+                        if overwrite {
+                            warnings.push(PlanWarning {
+                                kind: WarningKind::Overwrite,
+                                paths: vec![dest_path.clone()],
+                                message: "Dest will be overwrite".into(),
+                            });
+                        }
+                        actions.push(Action::Move {
+                            from: entry_path.to_path_buf(),
+                            to: dest_path,
+                            overwrite,
+                        });
+                        summary.files_moved += 1;
+                    }
+                }
+                for dir in dirs_to_delete.iter().rev() {
+                    actions.push(Action::Delete {
+                        path: dir.clone(),
+                        kind: FsObjectKind::Directory,
+                        recursive: false,
+                    });
+                    summary.dirs_deleted += 1;
+                }
             } else {
-                self.target.clone()
-            };
+                let dest = if self.sources.len() > 1 || target_is_dir {
+                    self.target.join(src.file_name().unwrap())
+                } else {
+                    self.target.clone()
+                };
 
-            if src == &dest {
-                errors.push(PlanError {
-                    kind: ErrorKind::InvalidPath,
-                    path: Some(src.clone()),
-                    message: "Source and destination are the same".into(),
+                if src == &dest {
+                    errors.push(PlanError {
+                        kind: ErrorKind::InvalidPath,
+                        path: Some(src.clone()),
+                        message: "Source and destination are the same".into(),
+                    });
+                    continue;
+                }
+
+                let overwrite = dest.exists();
+                if overwrite {
+                    warnings.push(PlanWarning {
+                        kind: WarningKind::Overwrite,
+                        paths: vec![dest.clone()],
+                        message: "Dest will be overwrite".into(),
+                    });
+                }
+
+                actions.push(Action::Move {
+                    from: src.clone(),
+                    to: dest,
+                    overwrite,
                 });
-                continue;
+
+                summary.files_moved += 1;
             }
-
-            let overwrite = dest.exists();
-            if overwrite {
-                warnings.push(PlanWarning {
-                    kind: WarningKind::Overwrite,
-                    paths: vec![dest.clone()],
-                    message: "Dest will be overwrite".into(),
-                });
-            }
-
-            actions.push(Action::Move {
-                from: src.clone(),
-                to: dest,
-                overwrite,
-            });
-
-            summary.files_moved += 1;
         }
 
         summary.warnings = warnings.len();

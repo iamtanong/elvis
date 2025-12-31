@@ -60,38 +60,57 @@ impl super::traits::Planner for RmPlanner {
             };
 
             if metadata.is_dir() {
-                if !self.recursive {
-                    errors.push(PlanError {
-                        kind: ErrorKind::Unsupported,
-                        path: Some(target.clone()),
-                        message: "Is a directory (use -r)".into(),
+                if self.recursive {
+                    warnings.push(PlanWarning {
+                        kind: WarningKind::RecursiveDelete,
+                        paths: vec![target.clone()],
+                        message: "Recursive directory deletion".into(),
                     });
-                    continue;
-                }
 
-                warnings.push(PlanWarning {
-                    kind: WarningKind::RecursiveDelete,
-                    paths: vec![target.clone()],
-                    message: "Recursive directory deletion".into(),
-                });
+                    for entry in WalkDir::new(target)
+                        .contents_first(true)
+                        .into_iter()
+                        .filter_map(Result::ok)
+                    {
+                        let path = entry.path().to_path_buf();
+                        let kind = if entry.file_type().is_dir() {
+                            summary.dirs_deleted += 1;
+                            FsObjectKind::Directory
+                        } else {
+                            summary.files_deleted += 1;
+                            FsObjectKind::File
+                        };
 
-                for entry in WalkDir::new(target)
-                    .contents_first(true)
-                    .into_iter()
-                    .filter_map(Result::ok)
-                {
-                    let path = entry.path().to_path_buf();
-                    let kind = if entry.file_type().is_dir() {
-                        summary.dirs_deleted += 1;
-                        FsObjectKind::Directory
-                    } else {
-                        summary.files_deleted += 1;
-                        FsObjectKind::File
-                    };
-
+                        actions.push(Action::Delete {
+                            path,
+                            kind,
+                            recursive: false,
+                        });
+                    }
+                } else {
+                    // Not recursive, check if directory is empty
+                    match std::fs::read_dir(target) {
+                        Ok(mut dir) => {
+                            if dir.next().is_some() {
+                                // Not empty
+                                errors.push(PlanError {
+                                    kind: ErrorKind::Unsupported,
+                                    path: Some(target.clone()),
+                                    message: "Is a directory (use -r)".into(),
+                                });
+                                continue;
+                            }
+                            // Is empty, fallthrough to delete
+                        }
+                        Err(_) => {
+                            // Could be a permission error, let the delete action fail later
+                        }
+                    }
+                    // This is for an empty directory
+                    summary.dirs_deleted += 1;
                     actions.push(Action::Delete {
-                        path,
-                        kind,
+                        path: target.clone(),
+                        kind: FsObjectKind::Directory,
                         recursive: false,
                     });
                 }

@@ -35,7 +35,9 @@ pub struct PlanSummary {
     pub files_deleted: usize,
     pub dirs_deleted: usize,
     pub files_created: usize,
+    pub dirs_created: usize,
     pub files_moved: usize,
+    pub files_modified: usize,
     pub warnings: usize,
     pub errors: usize,
 }

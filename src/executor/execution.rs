@@ -1,6 +1,7 @@
 use std::{fs, io};
 
 use dialoguer::{Confirm, theme::ColorfulTheme};
+use filetime::FileTime;
 
 use crate::{
     executor::options::ExecutorOptions,
@@ -70,7 +71,11 @@ impl Executor {
                 overwrite,
             } => {
                 if *overwrite && to.exists() {
-                    fs::remove_file(to)?;
+                    if to.is_dir() {
+                        fs::remove_dir_all(to)?;
+                    } else {
+                        fs::remove_file(to)?;
+                    }
                 }
                 fs::rename(from, to)?
             }
@@ -79,8 +84,9 @@ impl Executor {
                 FsObjectKind::Directory => fs::remove_dir(path)?,
             },
 
-            Action::Modify { .. } => {
-                println!("To be implemented")
+            Action::Modify { path, .. } => {
+                let now = FileTime::now();
+                filetime::set_file_mtime(path, now)?;
             }
         };
 
