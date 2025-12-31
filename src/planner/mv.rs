@@ -44,7 +44,7 @@ impl super::traits::Planner for MvPlanner {
                     path: Some(self.target.clone()),
                     message: "Target does not exist".into(),
                 });
-            } else if target_is_dir {
+            } else if !target_is_dir {
                 errors.push(PlanError {
                     kind: ErrorKind::InvalidPath,
                     path: Some(self.target.clone()),
