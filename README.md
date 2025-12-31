@@ -5,10 +5,10 @@
 ## Installation
 
 ```bash
-git clone https://github.com/iamtanong/elvis.git
-cd elvis
-cargo build --release
+brew install iamtanong/elvis/elvis
 ```
+
+Other installation options see: [Release](https://github.com/iamtanong/elvis/releases)
 
 ## Usage
 
