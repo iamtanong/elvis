@@ -1,0 +1,54 @@
+[changelog]
+# Changelog header
+header = """
+# Changelog\n
+All notable changes to this project will be documented in this file.\n
+"""
+# Template for the changelog body
+body = """
+{% if version %}\
+    ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+    ## [Unreleased]
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+    ### {{ group | upper_first }}
+    {% for commit in commits %}
+        - {{ commit.message | upper_first }}\
+    {% endfor %}
+{% endfor %}\n
+"""
+# Remove the leading and trailing whitespace
+trim = true
+
+[git]
+# Parse commits based on conventional format
+conventional_commits = true
+# Filter out commits
+filter_unconventional = false  # Include non-conventional commits
+# Sort commits
+sort_commits = "newest"
+# Protect breaking changes
+protect_breaking_commits = false
+
+# Commit preprocessors
+commit_preprocessors = [
+  { pattern = '\((\w+\s)?#([0-9]+)\)', replace = "([#${2}](https://github.com/iamtanong/elvis/issues/${2}))"}, # Link issues
+]
+
+# Commit parsers - define what goes in each section
+commit_parsers = [
+  { message = "^feat", group = "Features"},
+  { message = "^fix", group = "Bug Fixes"},
+  { message = "^docs", group = "Documentation"},
+  { message = "^perf", group = "Performance"},
+  { message = "^refactor", group = "Refactoring"},
+  { message = "^style", skip = true},  # Skip style commits
+  { message = "^test", group = "Testing"},
+  { message = "^chore", skip = true},  # Skip chore commits
+  { message = "^ci", group = "CI/CD"},
+  { message = "^build", group = "Build"},
+  { message = "^revert", group = "Reverted"},
+  # Catch-all for other commits
+  { message = ".*", group = "Other"},
+]

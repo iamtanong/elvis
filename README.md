@@ -1,5 +1,10 @@
 # Elvis
 
+![Elvis demo](/assets/demo.gif)
+
+[![CI](https://github.com/iamtanong/elvis/workflows/CI/badge.svg)](https://github.com/iamtanong/elvis/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 **Elvis** is a CLI tool that lets you preview file-system commands like `touch`, `mv`, and `rm` by performing **dry-run** of your intended action, showing you exactly what will happen to your files without actually touching them.
 
 ## Installation
